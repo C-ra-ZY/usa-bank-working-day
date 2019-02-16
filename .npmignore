@@ -1,0 +1,8 @@
+report/
+.nyc_output/
+.vscode/
+test/
+blackBoxTest/
+package-lock.json
+src/
+babel.config.js
