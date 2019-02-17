@@ -1,38 +1,52 @@
 {
-  "name": "usaworkingday",
-  "version": "1.0.0",
-  "description": "calculate usa government bank holiday without outer dependencies",
-  "main": "index.js",
-  "scripts": {
-    "test": "rimraf report&&nyc mocha",
-    "build": "babel src --out-dir build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/C-ra-ZY/usaworkingday.git"
-  },
-  "keywords": [
-    "usa",
-    "bank",
-    "working",
-    "day"
-  ],
-  "author": "chen, zhenyang",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/C-ra-ZY/usaworkingday/issues"
-  },
-  "homepage": "https://github.com/C-ra-ZY/usaworkingday#readme",
-  "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.3",
-    "@babel/plugin-proposal-optional-chaining": "^7.2.0",
-    "@babel/polyfill": "^7.2.5",
-    "@babel/preset-env": "^7.3.1",
-    "@babel/register": "^7.0.0",
-    "babel-plugin-istanbul": "^5.1.0",
-    "chai": "^4.2.0",
-    "mocha": "^5.2.0",
-    "sinon": "^7.2.3"
-  }
+	"name": "usaworkingday",
+	"version": "1.0.0",
+	"description": "calculate U.S.A government bank holiday without outer dependencies",
+	"main": "index.js",
+	"scripts": {
+		"test": "cross-env NODE_ENV=test rimraf report&&nyc mocha",
+		"build": "babel src --out-dir build"
+	},
+	"nyc": {
+		"require": ["@babel/register"],
+		"pre-file": false,
+		"check-coverage": true,
+		"sourceMap": true,
+		"instrument": true,
+		"lines": 95,
+		"statements": 95,
+		"functions": 95,
+		"branches": 95,
+		"include": ["src/**/*.js"],
+		"exclude": ["src/presetConstant/**/*.js", "src/polyfill/**/*.js"],
+		"reporter": ["lcov", "text-summary", "json", "html"],
+		"cache": false,
+		"report-dir": "./report"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/C-ra-ZY/usaworkingday.git"
+	},
+	"keywords": ["usa", "bank", "working", "day"],
+	"author": "chen, zhenyang",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/C-ra-ZY/usaworkingday/issues"
+	},
+	"homepage": "https://github.com/C-ra-ZY/usaworkingday#readme",
+	"devDependencies": {
+		"@babel/cli": "^7.2.3",
+		"@babel/core": "^7.3.3",
+		"@babel/polyfill": "^7.2.5",
+		"@babel/preset-env": "^7.3.1",
+		"@babel/register": "^7.0.0",
+		"babel-plugin-istanbul": "^5.1.0",
+		"chai": "^4.2.0",
+		"mocha": "^5.2.0",
+		"nyc": "^13.3.0",
+		"sinon": "^7.2.3"
+	},
+	"dependencies": {
+		"date-exists": "^1.0.1"
+	}
 }
