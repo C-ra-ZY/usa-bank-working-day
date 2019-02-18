@@ -1,5 +1,5 @@
 {
-	"name": "usaworkingday",
+	"name": "usabankholiday",
 	"version": "1.0.0",
 	"description": "calculate U.S.A government bank holiday without outer dependencies",
 	"main": "index.js",
