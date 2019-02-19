@@ -4,15 +4,15 @@
 	"description": "calculate U.S.A government bank holiday without outer dependencies",
 	"main": "index.js",
 	"scripts": {
-		"test": "cross-env NODE_ENV=test rimraf report&&nyc mocha",
+		"test": "cross-env NODE_ENV=test nyc mocha",
 		"build": "babel src --out-dir build"
 	},
 	"nyc": {
 		"require": ["@babel/register"],
-		"pre-file": false,
+		"per-file": false,
 		"check-coverage": true,
-		"sourceMap": true,
-		"instrument": true,
+		"sourceMap": false,
+		"instrument": false,
 		"lines": 95,
 		"statements": 95,
 		"functions": 95,
