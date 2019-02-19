@@ -4,10 +4,10 @@ function setYMD(year, month, date) {
 		throw Error("this function requires a safe integer of year");
 	}
 	if (!Number.isSafeInteger(month) || month > 11 || month < 0) {
-		throw Error("this function requires a safe integer of month, and the number shall be in  [0,11]");
+		throw Error("this function requires a safe integer of month, and the number shall be in [0,11]");
 	}
 	if (!Number.isSafeInteger(date) || date > 31 || date < 0) {
-		throw Error("this function requires a safe integer of date, and the nubmer shall be in [0,31]");
+		throw Error("this function requires a safe integer of date, and the number shall be in [0,31]");
 	}
 	if (!dateExists(`${date}/${month + 1}/${year}`)) {
 		date !== 0 &&
@@ -37,7 +37,7 @@ function parseDate(targetDate) {
 			].some((e) => e.test(targetDate))
 		) {
 			let tempDate = new Date(targetDate + (/Z$/i.test(targetDate) ? "" : "Z"));
-			parsedDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate());
+			parsedDate = new Date(tempDate.getUTCFullYear(), tempDate.getUTCMonth(), tempDate.getUTCDate());
 		}
 	} else if (typeof targetDate == "number") {
 		parsedDate = new Date(targetDate);
@@ -55,23 +55,23 @@ function parseDate(targetDate) {
 function checkFixedDateHoliday(fixedDateHolidayObj) {
 	let { month, date } = fixedDateHolidayObj;
 	if (!Number.isSafeInteger(month) || month > 11 || month < 0) {
-		throw Error("this function requires a safe integer of month, and the number shall be in  [0,11]");
+		throw Error("this function requires a safe integer of month, and the number shall be in [0,11]");
 	}
 	if (!Number.isSafeInteger(date) || date > 31 || date < 0) {
-		throw Error("this function requires a safe integer of date, and the nubmer shall be in [0,31]");
+		throw Error("this function requires a safe integer of date, and the number shall be in [0,31]");
 	}
 }
 
 function checkOrdinalHoliday(ordinalHolidayObj) {
 	let { ordinal, month, day } = ordinalHolidayObj;
 	if (!Number.isSafeInteger(month) || month > 11 || month < 0) {
-		throw Error("this function requires a safe integer of month, and the number shall be in  [0,11]");
+		throw Error("this function requires a safe integer of month, and the number shall be in [0,11]");
 	}
 	if (!Number.isSafeInteger(ordinal) || ordinal > 5 || ordinal < -5 || ordinal === 0) {
-		throw Error("this function requires a safe integer of ordinal, and the nubmer shall be in [-5,0),(0,5]");
+		throw Error("this function requires a safe integer of ordinal, and the number shall be in [-5,0),(0,5]");
 	}
 	if (!Number.isSafeInteger(day) || day > 6 || day < 0) {
-		throw Error("this function requires a safe integer of day, and the nubmer shall be in [0,6]");
+		throw Error("this function requires a safe integer of day, and the number shall be in [0,6]");
 	}
 }
 
