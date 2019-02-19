@@ -4,5 +4,5 @@ report/
 test/
 blackBoxTest/
 package-lock.json
-src/
+build/
 babel.config.js
