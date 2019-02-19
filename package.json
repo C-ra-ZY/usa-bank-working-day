@@ -5,7 +5,8 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "cross-env NODE_ENV=test nyc mocha",
-		"build": "babel src --out-dir build"
+		"build": "babel src --out-dir build",
+		"postinstall": "npm run build"
 	},
 	"nyc": {
 		"require": ["@babel/register"],
