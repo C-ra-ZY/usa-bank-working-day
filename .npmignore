@@ -5,3 +5,11 @@ test/
 blackBoxTest/
 package-lock.json
 build/
+demo
+node_modules
+.gitignore
+.npmignore
+yarn.lock
+package-lock.json
+tsconfig.json
+rollup.config.js
