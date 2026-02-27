@@ -1,35 +1,104 @@
 import constants from "../src/constants";
-import main from "../src";
+import main, { createUsaBankWorkingDayToolKit, UsaBankWorkingDayToolKit } from "../src";
+import { FixedDateHoliday, OrdinalHoliday } from "../src/constants";
+import {
+  CalendarOf2022,
+  CalendarOf2026,
+  CalendarOf2027,
+  CalendarOf2028,
+  isWeekendUtc,
+  observedHolidayDates2022,
+  observedHolidayDates2026,
+  observedHolidayDates2027,
+  observedHolidayDates2028,
+} from "./fixtures/us-bank-holidays";
 
 beforeEach(() => {
-  /* main.ordinalHolidays = constants.ordinalHolidays;
-  main.fixedDateHolidays = constants.fixedDateHolidays; */
+  main.ordinalHolidays = constants.ordinalHolidays;
+  main.fixedDateHolidays = constants.fixedDateHolidays;
   main.cleanCache();
+});
+describe("module exports", () => {
+  it("supports default singleton plus modern named exports", () => {
+    expect(typeof main.isBankHoliday).toBe("function");
+
+    const fromClass = new UsaBankWorkingDayToolKit();
+    fromClass.ordinalHolidays = constants.ordinalHolidays;
+    fromClass.fixedDateHolidays = constants.fixedDateHolidays;
+    fromClass.cleanCache();
+
+    const fromFactory = createUsaBankWorkingDayToolKit();
+    fromFactory.ordinalHolidays = constants.ordinalHolidays;
+    fromFactory.fixedDateHolidays = constants.fixedDateHolidays;
+    fromFactory.cleanCache();
+
+    expect(fromClass.isBankHoliday("2022-07-04")).toBe(true);
+    expect(fromFactory.isBankHoliday("2022-07-04")).toBe(true);
+    expect(main.isBankHoliday("2022-07-04")).toBe(true);
+
+    expect(fromClass).not.toBe(main);
+    expect(fromFactory).not.toBe(main);
+
+  });
 });
 
 describe("ordinalHolidays unit test", () => {
-  it("get and set", (done) => {
+  it("get and set", () => {
+    const fromGetter = main.ordinalHolidays;
+    expect(fromGetter).toEqual(constants.ordinalHolidays);
+    expect(fromGetter).not.toBe(constants.ordinalHolidays);
+
+    const getterSnapshot = main.ordinalHolidays;
+    getterSnapshot.pop();
     expect(main.ordinalHolidays).toEqual(constants.ordinalHolidays);
-    let testArr = constants.ordinalHolidays.slice(0, 3);
+
+    const getterSnapshotNested = main.ordinalHolidays;
+    getterSnapshotNested[0].month = 11;
+    expect(main.ordinalHolidays[0].month).toBe(constants.ordinalHolidays[0].month);
+
+    let testArr = constants.ordinalHolidays.slice(0, 3).map((holiday) => ({ ...holiday }));
     main.ordinalHolidays = testArr;
     expect(main.ordinalHolidays).toEqual(testArr);
-    done();
+
+    testArr.pop();
+    expect(main.ordinalHolidays).toHaveLength(3);
+
+    testArr[0].month = 11;
+    expect(main.ordinalHolidays[0].month).not.toBe(11);
   });
 });
 
 describe("fixedDateHolidays unit test", () => {
-  it("get and set", (done) => {
+  it("get and set", () => {
+    const fromGetter = main.fixedDateHolidays;
+    expect(fromGetter).toEqual(constants.fixedDateHolidays);
+    expect(fromGetter).not.toBe(constants.fixedDateHolidays);
+
+    const getterSnapshot = main.fixedDateHolidays;
+    getterSnapshot.pop();
     expect(main.fixedDateHolidays).toEqual(constants.fixedDateHolidays);
-    let testArr = constants.fixedDateHolidays.slice(0, 3);
+
+    const getterSnapshotNested = main.fixedDateHolidays;
+    getterSnapshotNested[0].month = 11;
+    expect(main.fixedDateHolidays[0].month).toBe(constants.fixedDateHolidays[0].month);
+
+    let testArr = constants.fixedDateHolidays
+      .slice(0, 3)
+      .map((holiday) => ({ ...holiday }));
     main.fixedDateHolidays = testArr;
     expect(main.fixedDateHolidays).toEqual(testArr);
-    done();
+
+    testArr.pop();
+    expect(main.fixedDateHolidays).toHaveLength(3);
+
+    testArr[0].month = 11;
+    expect(main.fixedDateHolidays[0].month).not.toBe(11);
   });
 });
 
 describe("getDateOfFixedDateHoliday unit test", () => {
-  it("get right date: Christmas", (done) => {
-    let christmas = {
+  it("get right date: Christmas", () => {
+    let christmas: FixedDateHoliday = {
       month: 11,
       date: 25,
       name: "Christmas Day",
@@ -38,12 +107,11 @@ describe("getDateOfFixedDateHoliday unit test", () => {
     expect(result.getFullYear()).toEqual(2017);
     expect(result.getMonth()).toEqual(11);
     expect(result.getDate()).toEqual(25);
-    done();
   });
 });
 
 describe("FixedDateHolidayAdjust unit test", () => {
-  it("get right date: New Year", (done) => {
+  it("get right date: New Year", () => {
     let newYear = {
       month: 0,
       date: 1,
@@ -53,19 +121,18 @@ describe("FixedDateHolidayAdjust unit test", () => {
     expect(result.getFullYear()).toEqual(2017);
     expect(result.getMonth()).toEqual(0);
     expect(result.getDate()).toEqual(2);
-    done();
   });
 });
 
 describe("getDateOfOrdinalHoliday unit test", () => {
-  it("get right date", (done) => {
-    let wb = {
+  it("get right date", () => {
+    let wb: OrdinalHoliday = {
         month: 1,
         day: 1,
         ordinal: 3,
         name: "Washington's Birthday",
       },
-      md = {
+      md: OrdinalHoliday = {
         month: 4,
         day: 1,
         ordinal: -1, //last
@@ -79,798 +146,162 @@ describe("getDateOfOrdinalHoliday unit test", () => {
     expect(result.getFullYear()).toEqual(2019);
     expect(result.getMonth()).toEqual(4);
     expect(result.getDate()).toEqual(27);
-    done();
   });
 
-  it("get wrong date", (done) => {
-    let wrongDay = {
+  it("get wrong date", () => {
+    let wrongDay: OrdinalHoliday = {
       month: 1,
       day: 1,
       ordinal: 5,
-      name: "wrong Day",
+      name: "Washington's Birthday",
     };
-    try {
-      let result = main.getDateOfOrdinalHoliday("2019-1-1", wrongDay);
-    } catch (err) {
-      expect<string>((err as any).message as string).toEqual(
-        "ordinalHolidayObj has a pair of properties { day, ordinal } which leads to a date that exceeds limit of date for the specific month"
-      );
-    }
+    expect(() => main.getDateOfOrdinalHoliday("2019-1-1", wrongDay)).toThrow(
+      "ordinalHolidayObj has a pair of properties { day, ordinal } which leads to a date that exceeds limit of date for the specific month"
+    );
+  });
+});
 
-    done();
+describe("Juneteenth", () => {
+  it("is not a bank holiday before 2021", () => {
+    expect(main.isBankHoliday("2020-6-19")).toBe(false);
+  });
+
+  it("is a bank holiday from 2021 (observed if weekend)", () => {
+    expect(main.isBankHoliday("2021-6-18")).toBe(true);
+    expect(main.isBankHoliday("2022-6-20")).toBe(true);
   });
 });
 
 describe("isBankHoliday unit test", () => {
-  it("right parameter get right result", (done) => {
+  it("right parameter get right result", () => {
     expect(main.isBankHoliday("2010-12-31")).toBe(true);
     expect(main.isBankHoliday("2017-12-30")).toBe(true);
     expect(main.isBankHoliday("2017-12-1")).toBe(false);
     expect(main.isBankHoliday("2019-1-14")).toBe(false);
     expect(main.isBankHoliday("2018-12-25")).toBe(true);
     expect(main.isBankHoliday("2017-8-26")).toBe(true);
-    done();
+  });
+
+  it("customized holidays are used by isBankHoliday", () => {
+    main.fixedDateHolidays = [
+      {
+        month: 2,
+        date: 2,
+        name: "Christmas Day",
+      },
+    ];
+    main.ordinalHolidays = [
+      {
+        month: 2,
+        day: 2, // Tuesday
+        ordinal: 2, // 2nd
+        name: "Labor Day",
+      },
+    ];
+
+    expect(main.isBankHoliday("2022-03-02")).toBe(true);
+    expect(main.isBankHoliday("2022-03-08")).toBe(true);
+
+    // July 4th 2022 is a Monday (weekday); defaults treat it as a fixed-date holiday.
+    expect(main.isBankHoliday("2022-07-04")).toBe(false);
+  });
+
+  it("cache invalidates on holiday customization", () => {
+    // Prime cache for 2022 using defaults.
+    expect(main.isBankHoliday("2022-01-04")).toBe(false);
+    expect(main.isBankHoliday("2022-07-04")).toBe(true);
+
+    main.fixedDateHolidays = [
+      {
+        month: 2,
+        date: 2,
+        name: "Christmas Day",
+      },
+    ];
+
+    expect(main.isBankHoliday("2022-07-04")).toBe(false);
+    expect(main.isBankHoliday("2022-03-02")).toBe(true);
   });
 });
 
 describe("getLastWorkingDate unit test", () => {
-  it("right parameter get right result", (done) => {
+  it("right parameter get right result", () => {
     expect(main.isBankHoliday("2017-1-2")).toBe(true);
     let lastWorkingDay = main.getLastWorkingDate("2017-1-2");
     expect(lastWorkingDay.getFullYear()).toBe(2016);
     expect(lastWorkingDay.getMonth()).toBe(11);
     expect(lastWorkingDay.getDate()).toBe(30);
     expect(main.isBankHoliday("2017-1-2")).toBe(true);
-    done();
   });
 });
-const CalendarOf2022 = [
-  "2021-12-31",
-  "2022-01-01",
-  "2022-01-02",
-  "2022-01-03",
-  "2022-01-04",
-  "2022-01-05",
-  "2022-01-06",
-  "2022-01-07",
-  "2022-01-08",
-  "2022-01-09",
-  "2022-01-10",
-  "2022-01-11",
-  "2022-01-12",
-  "2022-01-13",
-  "2022-01-14",
-  "2022-01-15",
-  "2022-01-16",
-  "2022-01-17",
-  "2022-01-18",
-  "2022-01-19",
-  "2022-01-20",
-  "2022-01-21",
-  "2022-01-22",
-  "2022-01-23",
-  "2022-01-24",
-  "2022-01-25",
-  "2022-01-26",
-  "2022-01-27",
-  "2022-01-28",
-  "2022-01-29",
-  "2022-01-30",
-  "2022-01-31",
-  "2022-02-01",
-  "2022-02-02",
-  "2022-02-03",
-  "2022-02-04",
-  "2022-02-05",
-  "2022-02-06",
-  "2022-02-07",
-  "2022-02-08",
-  "2022-02-09",
-  "2022-02-10",
-  "2022-02-11",
-  "2022-02-12",
-  "2022-02-13",
-  "2022-02-14",
-  "2022-02-15",
-  "2022-02-16",
-  "2022-02-17",
-  "2022-02-18",
-  "2022-02-19",
-  "2022-02-20",
-  "2022-02-21",
-  "2022-02-22",
-  "2022-02-23",
-  "2022-02-24",
-  "2022-02-25",
-  "2022-02-26",
-  "2022-02-27",
-  "2022-02-28",
-  "2022-03-01",
-  "2022-03-02",
-  "2022-03-03",
-  "2022-03-04",
-  "2022-03-05",
-  "2022-03-06",
-  "2022-03-07",
-  "2022-03-08",
-  "2022-03-09",
-  "2022-03-10",
-  "2022-03-11",
-  "2022-03-12",
-  "2022-03-13",
-  "2022-03-14",
-  "2022-03-15",
-  "2022-03-16",
-  "2022-03-17",
-  "2022-03-18",
-  "2022-03-19",
-  "2022-03-20",
-  "2022-03-21",
-  "2022-03-22",
-  "2022-03-23",
-  "2022-03-24",
-  "2022-03-25",
-  "2022-03-26",
-  "2022-03-27",
-  "2022-03-28",
-  "2022-03-29",
-  "2022-03-30",
-  "2022-03-31",
-  "2022-04-01",
-  "2022-04-02",
-  "2022-04-03",
-  "2022-04-04",
-  "2022-04-05",
-  "2022-04-06",
-  "2022-04-07",
-  "2022-04-08",
-  "2022-04-09",
-  "2022-04-10",
-  "2022-04-11",
-  "2022-04-12",
-  "2022-04-13",
-  "2022-04-14",
-  "2022-04-15",
-  "2022-04-16",
-  "2022-04-17",
-  "2022-04-18",
-  "2022-04-19",
-  "2022-04-20",
-  "2022-04-21",
-  "2022-04-22",
-  "2022-04-23",
-  "2022-04-24",
-  "2022-04-25",
-  "2022-04-26",
-  "2022-04-27",
-  "2022-04-28",
-  "2022-04-29",
-  "2022-04-30",
-  "2022-05-01",
-  "2022-05-02",
-  "2022-05-03",
-  "2022-05-04",
-  "2022-05-05",
-  "2022-05-06",
-  "2022-05-07",
-  "2022-05-08",
-  "2022-05-09",
-  "2022-05-10",
-  "2022-05-11",
-  "2022-05-12",
-  "2022-05-13",
-  "2022-05-14",
-  "2022-05-15",
-  "2022-05-16",
-  "2022-05-17",
-  "2022-05-18",
-  "2022-05-19",
-  "2022-05-20",
-  "2022-05-21",
-  "2022-05-22",
-  "2022-05-23",
-  "2022-05-24",
-  "2022-05-25",
-  "2022-05-26",
-  "2022-05-27",
-  "2022-05-28",
-  "2022-05-29",
-  "2022-05-30",
-  "2022-05-31",
-  "2022-06-01",
-  "2022-06-02",
-  "2022-06-03",
-  "2022-06-04",
-  "2022-06-05",
-  "2022-06-06",
-  "2022-06-07",
-  "2022-06-08",
-  "2022-06-09",
-  "2022-06-10",
-  "2022-06-11",
-  "2022-06-12",
-  "2022-06-13",
-  "2022-06-14",
-  "2022-06-15",
-  "2022-06-16",
-  "2022-06-17",
-  "2022-06-18",
-  "2022-06-19",
-  "2022-06-20",
-  "2022-06-21",
-  "2022-06-22",
-  "2022-06-23",
-  "2022-06-24",
-  "2022-06-25",
-  "2022-06-26",
-  "2022-06-27",
-  "2022-06-28",
-  "2022-06-29",
-  "2022-06-30",
-  "2022-07-01",
-  "2022-07-02",
-  "2022-07-03",
-  "2022-07-04",
-  "2022-07-05",
-  "2022-07-06",
-  "2022-07-07",
-  "2022-07-08",
-  "2022-07-09",
-  "2022-07-10",
-  "2022-07-11",
-  "2022-07-12",
-  "2022-07-13",
-  "2022-07-14",
-  "2022-07-15",
-  "2022-07-16",
-  "2022-07-17",
-  "2022-07-18",
-  "2022-07-19",
-  "2022-07-20",
-  "2022-07-21",
-  "2022-07-22",
-  "2022-07-23",
-  "2022-07-24",
-  "2022-07-25",
-  "2022-07-26",
-  "2022-07-27",
-  "2022-07-28",
-  "2022-07-29",
-  "2022-07-30",
-  "2022-07-31",
-  "2022-08-01",
-  "2022-08-02",
-  "2022-08-03",
-  "2022-08-04",
-  "2022-08-05",
-  "2022-08-06",
-  "2022-08-07",
-  "2022-08-08",
-  "2022-08-09",
-  "2022-08-10",
-  "2022-08-11",
-  "2022-08-12",
-  "2022-08-13",
-  "2022-08-14",
-  "2022-08-15",
-  "2022-08-16",
-  "2022-08-17",
-  "2022-08-18",
-  "2022-08-19",
-  "2022-08-20",
-  "2022-08-21",
-  "2022-08-22",
-  "2022-08-23",
-  "2022-08-24",
-  "2022-08-25",
-  "2022-08-26",
-  "2022-08-27",
-  "2022-08-28",
-  "2022-08-29",
-  "2022-08-30",
-  "2022-08-31",
-  "2022-09-01",
-  "2022-09-02",
-  "2022-09-03",
-  "2022-09-04",
-  "2022-09-05",
-  "2022-09-06",
-  "2022-09-07",
-  "2022-09-08",
-  "2022-09-09",
-  "2022-09-10",
-  "2022-09-11",
-  "2022-09-12",
-  "2022-09-13",
-  "2022-09-14",
-  "2022-09-15",
-  "2022-09-16",
-  "2022-09-17",
-  "2022-09-18",
-  "2022-09-19",
-  "2022-09-20",
-  "2022-09-21",
-  "2022-09-22",
-  "2022-09-23",
-  "2022-09-24",
-  "2022-09-25",
-  "2022-09-26",
-  "2022-09-27",
-  "2022-09-28",
-  "2022-09-29",
-  "2022-09-30",
-  "2022-10-01",
-  "2022-10-02",
-  "2022-10-03",
-  "2022-10-04",
-  "2022-10-05",
-  "2022-10-06",
-  "2022-10-07",
-  "2022-10-08",
-  "2022-10-09",
-  "2022-10-10",
-  "2022-10-11",
-  "2022-10-12",
-  "2022-10-13",
-  "2022-10-14",
-  "2022-10-15",
-  "2022-10-16",
-  "2022-10-17",
-  "2022-10-18",
-  "2022-10-19",
-  "2022-10-20",
-  "2022-10-21",
-  "2022-10-22",
-  "2022-10-23",
-  "2022-10-24",
-  "2022-10-25",
-  "2022-10-26",
-  "2022-10-27",
-  "2022-10-28",
-  "2022-10-29",
-  "2022-10-30",
-  "2022-10-31",
-  "2022-11-01",
-  "2022-11-02",
-  "2022-11-03",
-  "2022-11-04",
-  "2022-11-05",
-  "2022-11-06",
-  "2022-11-07",
-  "2022-11-08",
-  "2022-11-09",
-  "2022-11-10",
-  "2022-11-11",
-  "2022-11-12",
-  "2022-11-13",
-  "2022-11-14",
-  "2022-11-15",
-  "2022-11-16",
-  "2022-11-17",
-  "2022-11-18",
-  "2022-11-19",
-  "2022-11-20",
-  "2022-11-21",
-  "2022-11-22",
-  "2022-11-23",
-  "2022-11-24",
-  "2022-11-25",
-  "2022-11-26",
-  "2022-11-27",
-  "2022-11-28",
-  "2022-11-29",
-  "2022-11-30",
-  "2022-12-01",
-  "2022-12-02",
-  "2022-12-03",
-  "2022-12-04",
-  "2022-12-05",
-  "2022-12-06",
-  "2022-12-07",
-  "2022-12-08",
-  "2022-12-09",
-  "2022-12-10",
-  "2022-12-11",
-  "2022-12-12",
-  "2022-12-13",
-  "2022-12-14",
-  "2022-12-15",
-  "2022-12-16",
-  "2022-12-17",
-  "2022-12-18",
-  "2022-12-19",
-  "2022-12-20",
-  "2022-12-21",
-  "2022-12-22",
-  "2022-12-23",
-  "2022-12-24",
-  "2022-12-25",
-  "2022-12-26",
-  "2022-12-27",
-  "2022-12-28",
-  "2022-12-29",
-  "2022-12-30",
-  "2022-12-31",
-  "2023-01-01",
-];
-
-const isHolidayIn2022 = [
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  true,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-  true,
-  false,
-  false,
-  false,
-  false,
-  true,
-  true,
-];
-
 describe("test with calendar of 2022", () => {
-  it("include pre and next day", (done) => {
+  it("include pre and next day", () => {
     for (let index = 0; index < CalendarOf2022.length; index++) {
-      expect(main.isBankHoliday(CalendarOf2022[index])).toBe(
-        isHolidayIn2022[index]
-      );
+      const dateStr = CalendarOf2022[index];
+      const expected = isWeekendUtc(dateStr) || observedHolidayDates2022.has(dateStr);
+      expect(main.isBankHoliday(dateStr)).toBe(expected);
     }
-    done();
+  });
+});
+
+describe("Observed-date edge cases", () => {
+  it("dec 31 observed when jan 1 is saturday", () => {
+    expect(main.isBankHoliday("2027-12-30")).toBe(false);
+    expect(main.isBankHoliday("2027-12-31")).toBe(true);
+    expect(main.isBankHoliday("2028-01-01")).toBe(true); // weekend + New Year's Day
+  });
+
+  it("independence day observed when july 4 is saturday (2026)", () => {
+    expect(main.isBankHoliday("2026-07-02")).toBe(false);
+    expect(main.isBankHoliday("2026-07-03")).toBe(true);
+    expect(main.isBankHoliday("2026-07-04")).toBe(true); // weekend
+  });
+
+  it("veterans day observed when nov 11 is saturday (2028)", () => {
+    expect(main.isBankHoliday("2028-11-10")).toBe(true);
+    expect(main.isBankHoliday("2028-11-11")).toBe(true); // weekend
+    expect(main.isBankHoliday("2028-11-14")).toBe(false);
+  });
+
+  it("july 4 observed when independence day is sunday (2027)", () => {
+    expect(main.isBankHoliday("2027-07-03")).toBe(true);
+    expect(main.isBankHoliday("2027-07-05")).toBe(true);
+    expect(main.isBankHoliday("2027-07-06")).toBe(false);
+  });
+
+  it("christmas observed when dec 25 is saturday (2027)", () => {
+    expect(main.isBankHoliday("2027-12-24")).toBe(true);
+    expect(main.isBankHoliday("2027-12-25")).toBe(true);
+    expect(main.isBankHoliday("2027-12-27")).toBe(false);
+  });
+});
+
+describe("test with calendar of 2026", () => {
+  it("calendar of 2026", () => {
+    for (let index = 0; index < CalendarOf2026.length; index++) {
+      const dateStr = CalendarOf2026[index];
+      const expected = isWeekendUtc(dateStr) || observedHolidayDates2026.has(dateStr);
+      expect(main.isBankHoliday(dateStr)).toBe(expected);
+    }
+  });
+});
+
+describe("test with calendar of 2027", () => {
+  it("calendar of 2027", () => {
+    for (let index = 0; index < CalendarOf2027.length; index++) {
+      const dateStr = CalendarOf2027[index];
+      const expected = isWeekendUtc(dateStr) || observedHolidayDates2027.has(dateStr);
+      expect(main.isBankHoliday(dateStr)).toBe(expected);
+    }
+  });
+});
+
+describe("test with calendar of 2028", () => {
+  it("calendar of 2028", () => {
+    for (let index = 0; index < CalendarOf2028.length; index++) {
+      const dateStr = CalendarOf2028[index];
+      const expected = isWeekendUtc(dateStr) || observedHolidayDates2028.has(dateStr);
+      expect(main.isBankHoliday(dateStr)).toBe(expected);
+    }
   });
 });
