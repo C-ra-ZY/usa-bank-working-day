@@ -1,67 +1,89 @@
 {
-	"name": "usa-bank-working-day",
-	"version": "1.0.0",
-	"description": "calculate U.S.A government bank working day without outer dependencies",
-	"main": "dist/cjs/index.js",
-	"module": "dist/esm/index.js",
-	"files": [
-		"dist",
-		"src"
-	],
-	"types": "dist/esm/index.d.ts",
-	"eslintConfig": {},
-	"browserslist": {
-		"production": [
-			">0.2%",
-			"not dead",
-			"not op_mini all"
-		],
-		"development": [
-			"last 1 chrome version",
-			"last 1 firefox version",
-			"last 1 safari version"
-		]
-	},
-	"scripts": {
-		"test": "clear;jest --collectCoverage",
-		"rollup": "rollup -c -w --watch.exclude dist  --watch.exclude test --watch.exclude node_modules"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/C-ra-ZY/usaworkingday.git"
-	},
-	"keywords": [
-		"usa",
-		"bank",
-		"working",
-		"day"
-	],
-	"author": "Carl, Chen",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/C-ra-ZY/usaworkingday/issues"
-	},
-	"homepage": "https://github.com/C-ra-ZY/usaworkingday#readme",
-	"devDependencies": {
-		"@rollup/plugin-commonjs": "^22.0.1",
-		"@rollup/plugin-node-resolve": "^13.3.0",
-		"@rollup/plugin-typescript": "^8.3.4",
-		"@types/jest": "^28.1.7",
-		"cross-env": "^5.2.0",
-		"jest": "^28.1.3",
-		"rollup": "^2.77.2",
-		"rollup-plugin-dts": "^4.2.2",
-		"rollup-plugin-peer-deps-external": "^2.2.4",
-		"rollup-plugin-terser": "^7.0.2",
-		"ts-jest": "^28.0.8",
-		"ts-node": "^10.9.1",
-		"tslib": "^2.4.0",
-		"typescript": "^4.7.4"
-	},
-	"dependencies": {
-		"@typescript-eslint/eslint-plugin": "^5.33.1",
-		"@typescript-eslint/parser": "^5.33.1",
-		"date-exists": "^1.0.1",
-		"eslint-plugin-jest": "^26.8.3"
-	}
+  "name": "usa-bank-working-day",
+  "version": "1.0.0",
+  "description": "calculate U.S.A government bank working day without outer dependencies",
+  "main": "dist/cjs/index.cjs",
+  "module": "dist/esm/index.mjs",
+  "files": [
+    "dist",
+    "src",
+    "types"
+  ],
+  "types": "dist/cjs/index.d.ts",
+  "eslintConfig": {},
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "scripts": {
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
+    "test:tz": "cross-env TZ=UTC bun test -t \"date semantics contract\" && cross-env TZ=America/New_York bun test -t \"date semantics contract\"",
+    "build": "tsup",
+    "check:package": "npm run smoke:cjs && npm run smoke:esm && rm -f ./*.tgz && npm pack && npx @arethetypeswrong/cli ./*.tgz && npx publint",
+    "prepack": "node -e 'const fs=require(\"node:fs\");fs.mkdirSync(\"dist/esm\",{recursive:true});fs.mkdirSync(\"dist/cjs\",{recursive:true});fs.writeFileSync(\"dist/cjs/index.cjs\",\"\\\"use strict\\\";\\nconst m = require(\\\"./index.js\\\");\\nconst toolkit = (m && (m.default ?? m)) ?? m;\\nconst cls = (m && m.UsaBankWorkingDayToolKit) || toolkit.UsaBankWorkingDayToolKit;\\nconst factory = (m && m.createUsaBankWorkingDayToolKit) || toolkit.createUsaBankWorkingDayToolKit;\\ntoolkit.UsaBankWorkingDayToolKit = cls;\\ntoolkit.createUsaBankWorkingDayToolKit = factory;\\nmodule.exports = toolkit;\\n\",\"utf8\");fs.writeFileSync(\"dist/esm/index.mjs\",`import { createRequire } from \"node:module\";\\nconst require = createRequire(import.meta.url);\\nconst toolkit = require(\"../cjs/index.cjs\");\\nconst { UsaBankWorkingDayToolKit, createUsaBankWorkingDayToolKit } = toolkit;\\nexport { UsaBankWorkingDayToolKit, createUsaBankWorkingDayToolKit };\\nexport default toolkit;\\n`,\"utf8\");'",
+    "smoke:cjs": "set -eu; rm -f ./*.tgz; TGZ=$(npm pack --silent); TGZ_PATH=\"$PWD/$TGZ\"; TMP=$(mktemp -d); npm --silent --prefix \"$TMP\" init -y >/dev/null; npm --silent --prefix \"$TMP\" install \"$TGZ_PATH\" >/dev/null; (cd \"$TMP\" && node -e 'const path=require(\"node:path\"); const resolved=require.resolve(\"usa-bank-working-day\"); if(!resolved.endsWith(path.join(\"dist\",\"cjs\",\"index.cjs\"))) throw new Error(\"Expected CJS entry, got: \"+resolved); const toolkit=require(\"usa-bank-working-day\"); if(!toolkit||typeof toolkit.isBankHoliday!==\"function\") throw new Error(\"Unexpected default export shape\"); if(typeof toolkit.UsaBankWorkingDayToolKit!==\"function\"||typeof toolkit.createUsaBankWorkingDayToolKit!==\"function\") throw new Error(\"Missing CJS named exports\"); console.log(\"CJS smoke OK:\", resolved);'); rm -rf \"$TMP\";",
+    "smoke:esm": "set -eu; rm -f ./*.tgz; TGZ=$(npm pack --silent); TGZ_PATH=\"$PWD/$TGZ\"; TMP=$(mktemp -d); npm --silent --prefix \"$TMP\" init -y >/dev/null; npm --silent --prefix \"$TMP\" install \"$TGZ_PATH\" >/dev/null; (cd \"$TMP\" && node --input-type=module -e 'const resolved=import.meta.resolve(\"usa-bank-working-day\"); if(!resolved.endsWith(\"/dist/esm/index.mjs\")) throw new Error(\"Expected ESM entry, got: \"+resolved); const m=await import(\"usa-bank-working-day\"); const toolkit=m.default; if(!toolkit||typeof toolkit.isBankHoliday!==\"function\") throw new Error(\"Unexpected default export shape\"); if(typeof m.UsaBankWorkingDayToolKit!==\"function\"||typeof m.createUsaBankWorkingDayToolKit!==\"function\") throw new Error(\"Missing ESM named exports\"); console.log(\"ESM smoke OK:\", resolved);'); rm -rf \"$TMP\";"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/C-ra-ZY/usaworkingday.git"
+  },
+  "keywords": [
+    "usa",
+    "bank",
+    "working",
+    "day"
+  ],
+  "author": "Carl, Chen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/C-ra-ZY/usaworkingday/issues"
+  },
+  "homepage": "https://github.com/C-ra-ZY/usaworkingday#readme",
+  "devDependencies": {
+    "@swc/core": "^1.15.13",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "cross-env": "^5.2.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-jest": "^26.8.3",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.4.0",
+    "tsup": "^8.5.1",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "date-exists": "^1.0.1"
+  },
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/esm/index.d.mts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "default": "./dist/cjs/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "npm@11.6.1",
+  "type": "commonjs",
+  "directories": {
+    "test": "test"
+  }
 }

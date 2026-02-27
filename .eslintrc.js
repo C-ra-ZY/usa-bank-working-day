@@ -1,22 +1,30 @@
 module.exports = {
+  root: true,
   extends: ["plugin:@typescript-eslint/recommended"],
-  plugins: ["@typescript-eslint", "jest", "react"],
+  parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint", "jest"],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
-    },
   },
   env: {
-    browser: true,
     node: true,
     es6: true,
     "jest/globals": true,
   },
-  settings: {
-    react: {
-      version: "detect",
-    },
+  rules: {
+    // Legacy codebase style: keep TS/Jest linting, relax purely stylistic rules.
+    "prefer-const": "off",
+    "prefer-rest-params": "off",
+    "@typescript-eslint/adjacent-overload-signatures": "off",
   },
+  overrides: [
+    {
+      files: ["test/**/*.ts"],
+      rules: {
+        "no-var": "off",
+        "@typescript-eslint/no-loss-of-precision": "off",
+      },
+    },
+  ],
 };

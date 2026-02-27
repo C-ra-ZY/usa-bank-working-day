@@ -26,3 +26,4 @@ yarn-error.log*
 report/
 .nyc_output/
 .vscode
+.sisyphus/
