@@ -11,18 +11,24 @@ export type HolidayNames =
   | "Veterans Day"
   | "Christmas Day";
 
-export interface Holiday {
+export interface BaseHoliday {
   month: number;
+  name: HolidayNames;
+  effectiveFromYear?: number;
+  effectiveToYear?: number;
+}
+
+export interface Holiday extends BaseHoliday {
   day: number;
   ordinal: number;
-  name: HolidayNames;
 }
 
-export interface OrdinalHoliday extends Holiday {
+export interface OrdinalHoliday extends BaseHoliday {
+  day: number;
   ordinal: number;
 }
 
-export interface FixedDateHoliday extends Pick<Holiday, "month" | "name"> {
+export interface FixedDateHoliday extends BaseHoliday {
   date: number;
 }
 const presetHolidays: {
@@ -76,6 +82,7 @@ const presetHolidays: {
     {
       month: 5,
       date: 19,
+      effectiveFromYear: 2021,
       name: "Juneteenth National Independence Day",
     },
     {
