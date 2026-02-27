@@ -1,6 +1,6 @@
 {
   "name": "usa-bank-working-day",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "calculate U.S.A government bank working day without outer dependencies",
   "main": "dist/cjs/index.cjs",
   "module": "dist/esm/index.mjs",
